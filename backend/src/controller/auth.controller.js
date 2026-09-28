@@ -1,18 +1,20 @@
+import AppErr from "../util/error.js";
 import {
-  loginService,
   registrationService,
+  loginService,
+  linkOAuthAccount,
 } from "../service/auth.service.js";
 
 export async function registerController(req, res, next) {
   try {
     const { name, email, password } = req.body;
 
-    const user = await registrationService(name, email, password);
+    if (!name?.trim() || !email?.trim() || !password) {
+      throw new AppErr(400, "Name, email and password are required");
+    }
 
-    return res.status(201).json({
-      success: true,
-      user,
-    });
+    const user = await registrationService(name.trim(), email, password);
+    res.status(201).json({ success: true, user });
   } catch (error) {
     next(error);
   }
@@ -20,15 +22,20 @@ export async function registerController(req, res, next) {
 
 export async function loginController(req, res, next) {
   try {
-    const { email, password } = req.body;
+    const { email, password, linkToken } = req.body;
 
-    const { user, token } = await loginService(email, password);
+    if (!email?.trim() || !password) {
+      throw new AppErr(400, "Email and password are required");
+    }
 
-    return res.status(200).json({
-      success: true,
-      user,
-      token,
-    });
+    const result = await loginService(email, password);
+
+    // Password verified -> safe to attach the pending Google/GitHub identity
+    if (linkToken) {
+      await linkOAuthAccount(result.user, linkToken);
+    }
+
+    res.status(200).json(result);
   } catch (error) {
     next(error);
   }

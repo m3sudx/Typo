@@ -1,33 +1,64 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { FaGithub } from "react-icons/fa";
+import { FcGoogle } from "react-icons/fc";
+
 import { loginUser } from "../../api/auth.api.js";
 import "./loginPage.css";
 
+const API_URL = "http://localhost:3003/api/auth";
+
 function LoginPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-  });
-
+  const [formData, setFormData] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
+  const [info, setInfo] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
+  // Pending Google/GitHub identity waiting to be linked (from URL hash)
+  const [linkToken] = useState(
+    () => new URLSearchParams(window.location.hash.slice(1)).get("link") || "",
+  );
+
+  useEffect(() => {
+    // Keep the link token out of the address bar and history
+    if (window.location.hash) {
+      window.history.replaceState(
+        null,
+        "",
+        window.location.pathname + window.location.search,
+      );
+    }
+  }, [searchParams]);
+
+  const oauthStatus = searchParams.get("oauth");
+  const displayedError =
+    error ||
+    (oauthStatus === "failed"
+      ? "Sign-in with that provider failed. Please try again."
+      : "");
+  const displayedInfo =
+    info ||
+    (oauthStatus === "exists"
+      ? "An account with this email already exists. Sign in with your password once to link it."
+      : "");
+
   function handleChange(event) {
     const { name, value } = event.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  }
 
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+  function handleOAuthLogin(provider) {
+    window.location.assign(`${API_URL}/${provider}`);
   }
 
   async function handleSubmit(event) {
     event.preventDefault();
-
     setError("");
+    setInfo("");
 
     const { email, password } = formData;
 
@@ -42,15 +73,15 @@ function LoginPage() {
       const result = await loginUser({
         email: email.trim(),
         password,
+        linkToken: linkToken || undefined,
       });
 
       localStorage.setItem("access_token", result.token);
-
       navigate("/chat", { replace: true });
-    } catch (error) {
+    } catch (err) {
       const message =
-        error.response?.data?.message ||
-        error.response?.data?.error ||
+        err.response?.data?.message ||
+        err.response?.data?.error ||
         "Login failed. Please try again.";
 
       setError(message);
@@ -72,13 +103,13 @@ function LoginPage() {
         </header>
 
         <div className="login-social-buttons">
-          <button type="button" disabled title="GitHub login is not configured yet">
-            <span className="social-icon github-icon">●</span>
+          <button type="button" onClick={() => handleOAuthLogin("github")}>
+            <FaGithub className="social-icon" aria-hidden="true" />
             GitHub
           </button>
 
-          <button type="button" disabled title="Google login is not configured yet">
-            <span className="social-icon google-icon">G</span>
+          <button type="button" onClick={() => handleOAuthLogin("google")}>
+            <FcGoogle className="social-icon" aria-hidden="true" />
             Google
           </button>
         </div>
@@ -143,18 +174,21 @@ function LoginPage() {
             </div>
           </div>
 
-          {error && (
-            <p className="login-message login-error" role="alert">
-              {error}
+          {displayedInfo && (
+            <p className="login-message" role="status">
+              {displayedInfo}
             </p>
           )}
 
-          <button
-            className="login-submit"
-            type="submit"
-            disabled={loading}
-          >
+          {displayedError && (
+            <p className="login-message login-error" role="alert">
+              {displayedError}
+            </p>
+          )}
+
+          <button className="login-submit" type="submit" disabled={loading}>
             <span>{loading ? "Signing in..." : "Sign in"}</span>
+
             {!loading && (
               <span className="login-enter-key">
                 ↵ <kbd>Enter</kbd>

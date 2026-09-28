@@ -1,10 +1,17 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { FaGithub } from "react-icons/fa";
+import { FcGoogle } from "react-icons/fc";
+
 import { registerUser } from "../../api/auth.api.js";
 import "./registerPage.css";
 
+const API_URL = "http://localhost:3003/api/auth";
+
 function RegisterPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const redirectTimer = useRef(null);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -13,18 +20,27 @@ function RegisterPage() {
     confirmPassword: "",
   });
 
-  const [error, setError] = useState("");
+  const oauthFailed = searchParams.get("oauth") === "failed";
+  const [error, setError] = useState(() =>
+    oauthFailed ? "Sign-up with that provider failed. Please try again." : "",
+  );
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
+  // Clear the pending redirect if the component unmounts
+  useEffect(() => {
+    return () => clearTimeout(redirectTimer.current);
+  }, []);
+
   function handleChange(event) {
     const { name, value } = event.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  }
 
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+  // Same endpoint as login: new identity => account created, existing => signed in
+  function handleOAuth(provider) {
+    window.location.assign(`${API_URL}/${provider}`);
   }
 
   async function handleSubmit(event) {
@@ -40,13 +56,13 @@ function RegisterPage() {
       return;
     }
 
-    if (password !== confirmPassword) {
-      setError("Passwords do not match.");
+    if (password.length < 8) {
+      setError("Password must be at least 8 characters.");
       return;
     }
 
-    if (password.length < 8) {
-      setError("Password must be at least 8 characters.");
+    if (password !== confirmPassword) {
+      setError("Passwords do not match.");
       return;
     }
 
@@ -55,26 +71,21 @@ function RegisterPage() {
 
       await registerUser({
         name: name.trim(),
-        email: email.trim(),
+        email: email.trim().toLowerCase(),
         password,
       });
 
       setSuccess("Account created successfully. Redirecting to login...");
 
-      setFormData({
-        name: "",
-        email: "",
-        password: "",
-        confirmPassword: "",
-      });
+      setFormData({ name: "", email: "", password: "", confirmPassword: "" });
 
-      setTimeout(() => {
+      redirectTimer.current = setTimeout(() => {
         navigate("/login", { replace: true });
       }, 1500);
-    } catch (error) {
+    } catch (err) {
       const message =
-        error.response?.data?.message ||
-        error.response?.data?.error ||
+        err.response?.data?.message ||
+        err.response?.data?.error ||
         "Registration failed. Please try again.";
 
       setError(message);
@@ -96,21 +107,13 @@ function RegisterPage() {
         </header>
 
         <div className="register-social-buttons">
-          <button
-            type="button"
-            disabled
-            title="GitHub login is not configured yet"
-          >
-            <span className="register-social-icon github-icon">●</span>
+          <button type="button" onClick={() => handleOAuth("github")}>
+            <FaGithub className="register-social-icon" aria-hidden="true" />
             GitHub
           </button>
 
-          <button
-            type="button"
-            disabled
-            title="Google login is not configured yet"
-          >
-            <span className="register-social-icon google-icon">G</span>
+          <button type="button" onClick={() => handleOAuth("google")}>
+            <FcGoogle className="register-social-icon" aria-hidden="true" />
             Google
           </button>
         </div>
@@ -216,11 +219,7 @@ function RegisterPage() {
             </p>
           )}
 
-          <button
-            className="register-submit"
-            type="submit"
-            disabled={loading}
-          >
+          <button className="register-submit" type="submit" disabled={loading}>
             <span>{loading ? "Creating account..." : "Create account"}</span>
 
             {!loading && (
