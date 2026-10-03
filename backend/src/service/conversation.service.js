@@ -17,7 +17,6 @@ export async function getConversationsService(userId) {
 export async function createConversationService(userId, firstMessage) {
   // 1. Generate the conversation title
   const title = await generateConversationTitle(firstMessage);
-
   // 2. Generate Typo's first response using the same first message
   const answer = await generateTypoResponse([
     {
@@ -58,7 +57,6 @@ export async function createConversationService(userId, firstMessage) {
     );
 
     const assistantMessage = assistantMessageResult.rows[0];
-
     await client.query("COMMIT");
 
     return {

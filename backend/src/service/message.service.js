@@ -43,12 +43,12 @@ export async function createMessageService(
   const assistantMessage = assistantMessageResult.rows[0];
 
   // 5. Update conversation's last activity time
-  await pool.query(
-    `UPDATE conversations
-     SET updated_at = CURRENT_TIMESTAMP
-     WHERE id = $1`,
-    [conversationId]
-  );
+await pool.query(
+  `UPDATE conversations
+   SET updated_at = CURRENT_TIMESTAMP
+   WHERE id = $1 AND user_id = $2`,
+  [conversationId, userId]
+);
 
   return {
     userMessage,

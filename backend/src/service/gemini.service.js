@@ -45,7 +45,6 @@ export async function generateTypoResponse(messages) {
     contents,
     systemInstruction: `
 You are Typo, an expert AI code assistant and developer companion.
-
 Help users understand programming concepts and solve coding problems.
 Be clear, concise, and practical.
 Use Markdown code blocks for code.

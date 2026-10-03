@@ -46,6 +46,7 @@ export async function loginService(email, passw) {
 
   const user = result.rows[0];
 
+
   // OAuth-only account: no password to compare against
   if (!user.password_hash) {
     throw new AppErr(
@@ -68,12 +69,7 @@ export async function loginService(email, passw) {
   };
 }
 
-/**
- * Returns either:
- *   { id, name, email }                 -> user found/created, log them in
- *   { conflict: true, linkToken }       -> email belongs to a manual account;
- *                                          user must prove ownership with password
- */
+
 export async function findOrCreateOAuthUser({
   provider,
   providerUserId,

@@ -1,4 +1,7 @@
-import { createMessageService ,getMessagesService } from "../service/message.service.js";
+import {
+  createMessageService,
+  getMessagesService,
+} from "../service/message.service.js";
 
 export async function createMessageController(req, res, next) {
   try {
@@ -19,7 +22,7 @@ export async function createMessageController(req, res, next) {
       });
     }
 
-    const userId = 2; // Temporary test user ID
+    const userId = req.user.id;
 
     const result = await createMessageService(
       userId,
@@ -46,8 +49,8 @@ export async function createMessageController(req, res, next) {
 
 export async function getMessagesController(req, res, next) {
   try {
-    const { conversationId } = req.params;
-
+    const { id } = req.params;
+    const conversationId=id
     if (!/^\d+$/.test(conversationId)) {
       return res.status(400).json({
         success: false,
@@ -55,7 +58,7 @@ export async function getMessagesController(req, res, next) {
       });
     }
 
-    const userId = 2; // Temporary test user ID
+    const userId = req.user.id;
 
     const messages = await getMessagesService(
       userId,
