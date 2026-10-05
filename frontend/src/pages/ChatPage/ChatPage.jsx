@@ -16,41 +16,47 @@ export default function ChatPage() {
   const [refreshKey, setRefreshKey] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
 
- const handleSendMessage = async (message) => {
-  try {
-    setIsLoading(true);
+  const handleSendMessage = async (message) => {
+    const temporaryUserMessage = {
+      id: Date.now(),
+      role: "user",
+      content: message,
+    };
 
-    if (!selectedConversationId) {
-      const data = await createConversation(message);
+    // Show user's message immediately
+    setMessages((prevMessages) => [...prevMessages, temporaryUserMessage]);
 
-      setSelectedConversationId(data.conversation.id);
+    try {
+      setIsLoading(true);
 
-      setMessages([
-        data.userMessage,
-        data.assistantMessage,
-      ]);
+      // New conversation
+      if (!selectedConversationId) {
+        const data = await createConversation(message);
 
-      setRefreshKey((prev) => prev + 1);
+        setSelectedConversationId(data.conversation.id);
 
-      return;
+        // Replace temporary message with the real database message
+        setMessages((prevMessages) => [
+          ...prevMessages.filter((msg) => msg.id !== temporaryUserMessage.id),
+          data.userMessage,
+          data.assistantMessage,
+        ]);
+
+        setRefreshKey((prev) => prev + 1);
+
+        return;
+      }
+
+      // Existing conversation
+      const data = await createMessage(selectedConversationId, message);
+
+      setMessages((prevMessages) => [...prevMessages, data.assistantMessage]);
+    } catch (error) {
+      console.error("Failed to send message:", error);
+    } finally {
+      setIsLoading(false);
     }
-
-    const data = await createMessage(
-      selectedConversationId,
-      message
-    );
-
-    setMessages((prevMessages) => [
-      ...prevMessages,
-      data.userMessage,
-      data.assistantMessage,
-    ]);
-  } catch (error) {
-    console.error("Failed to send message:", error);
-  } finally {
-    setIsLoading(false);
-  }
-};
+  };
   const handleSelectConversation = async (conversationId) => {
     try {
       setSelectedConversationId(conversationId);
@@ -78,10 +84,7 @@ export default function ChatPage() {
 
       <main className="chat-main">
         <ChatHeader />
-        <ChatWindow
-  messages={messages}
-  isLoading={isLoading}
-/>
+        <ChatWindow messages={messages} isLoading={isLoading} />
         <ChatInput onSendMessage={handleSendMessage} />
       </main>
     </div>
