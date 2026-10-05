@@ -3,7 +3,9 @@ import AIMessage from "../AIMessage/AIMessage";
 
 import "./chatWindow.css";
 
-export default function ChatWindow({ messages }) {
+export default function ChatWindow({ messages, isLoading }) {
+  console.log("isLoading:", isLoading);
+
   return (
     <section className="chat-window">
       <div className="messages-container">
@@ -29,6 +31,16 @@ export default function ChatWindow({ messages }) {
 
           return null;
         })}
+
+        {isLoading && (
+          <div className="ai-message">
+            <div className="ai-message-content typing-indicator">
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+          </div>
+        )}
 
       </div>
     </section>

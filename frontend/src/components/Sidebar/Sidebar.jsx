@@ -14,24 +14,35 @@ import { getConversations } from "../../api/conversation.api.js";
 
 import "./sidebar.css";
 
-export default function Sidebar({onSelectConversation}) {
+export default function Sidebar({ onSelectConversation, onNewChat, refreshKey }) {
   const [conversations, setConversations] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function loadConversations() {
+    let isMounted = true;
+
+    const loadConversations = async () => {
       try {
         const data = await getConversations();
-        setConversations(data.conversations);
+
+        if (isMounted) {
+          setConversations(data?.conversations ?? []);
+        }
       } catch (error) {
         console.error("Failed to load conversations:", error);
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
-    }
+    };
 
     loadConversations();
-  }, []);
+
+    return () => {
+      isMounted = false;
+    };
+  }, [refreshKey]);
 
   return (
     <aside className="sidebar">
@@ -46,7 +57,7 @@ export default function Sidebar({onSelectConversation}) {
         </div>
       </header>
 
-      <button className="new-chat-btn">
+      <button className="new-chat-btn" onClick={onNewChat}>
         <Plus size={18} />
         <span>New Chat</span>
         <kbd>⌘K</kbd>
