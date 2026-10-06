@@ -56,3 +56,16 @@
     transform: translateY(-3px);
   }
 }
+
+.chat-error {
+  margin: 12px 0;
+  padding: 10px 14px;
+
+  border: 1px solid #4a2929;
+  border-radius: 8px;
+
+  background: #211515;
+  color: #e89090;
+
+  font-size: 13px;
+}
