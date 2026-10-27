@@ -75,9 +75,10 @@ function LoginPage() {
         password,
         linkToken: linkToken || undefined,
       });
+localStorage.setItem("access_token", result.token);
+localStorage.setItem("user", JSON.stringify(result.user));
 
-      localStorage.setItem("access_token", result.token);
-      navigate("/chat", { replace: true });
+navigate("/chat", { replace: true });
     } catch (err) {
       const message =
         err.response?.data?.message ||

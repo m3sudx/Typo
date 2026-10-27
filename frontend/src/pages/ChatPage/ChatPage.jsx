@@ -17,7 +17,7 @@ export default function ChatPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
-const handleSendMessage = async (message) => {
+  const handleSendMessage = async (message) => {
   const temporaryUserMessage = {
     id: Date.now(),
     role: "user",
