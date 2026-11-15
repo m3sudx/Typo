@@ -2,13 +2,15 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { FaGithub } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
+import { Eye, EyeOff, Sparkles, CheckCircle2 } from "lucide-react";
 
 import { loginUser } from "../../api/auth.api.js";
+import typo_logo from "../../assets/image/typo-logo.png";
 import "./loginPage.css";
 
 const API_URL = "http://localhost:3003/api/auth";
 
-function LoginPage() {
+export default function LoginPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
@@ -20,7 +22,7 @@ function LoginPage() {
 
   // Pending Google/GitHub identity waiting to be linked (from URL hash)
   const [linkToken] = useState(
-    () => new URLSearchParams(window.location.hash.slice(1)).get("link") || "",
+    () => new URLSearchParams(window.location.hash.slice(1)).get("link") || ""
   );
 
   useEffect(() => {
@@ -29,7 +31,7 @@ function LoginPage() {
       window.history.replaceState(
         null,
         "",
-        window.location.pathname + window.location.search,
+        window.location.pathname + window.location.search
       );
     }
   }, [searchParams]);
@@ -75,10 +77,11 @@ function LoginPage() {
         password,
         linkToken: linkToken || undefined,
       });
-localStorage.setItem("access_token", result.token);
-localStorage.setItem("user", JSON.stringify(result.user));
 
-navigate("/chat", { replace: true });
+      localStorage.setItem("access_token", result.token);
+      localStorage.setItem("user", JSON.stringify(result.user));
+
+      navigate("/chat", { replace: true });
     } catch (err) {
       const message =
         err.response?.data?.message ||
@@ -92,119 +95,155 @@ navigate("/chat", { replace: true });
   }
 
   return (
-    <main className="login-page">
-      <section className="login-card">
-        <div className="login-logo" aria-label="Typo logo">
-          {"{↵}"}
-        </div>
-
-        <header className="login-heading">
-          <h1>Welcome back</h1>
-          <p>Sign in to your TYPO developer workspace</p>
-        </header>
-
-        <div className="login-social-buttons">
-          <button type="button" onClick={() => handleOAuthLogin("github")}>
-            <FaGithub className="social-icon" aria-hidden="true" />
-            GitHub
-          </button>
-
-          <button type="button" onClick={() => handleOAuthLogin("google")}>
-            <FcGoogle className="social-icon" aria-hidden="true" />
-            Google
-          </button>
-        </div>
-
-        <div className="login-divider">
-          <span>OR CONTINUE</span>
-          <span>WITH EMAIL</span>
-        </div>
-
-        <form className="login-form" onSubmit={handleSubmit}>
-          <div className="login-field">
-            <div className="login-label-row">
-              <label htmlFor="email">Work Email</label>
-              <span>user@company.com</span>
+    <main className="auth-page">
+      <div className="auth-container">
+        {/* Left Side: Branding Panel */}
+        <section className="auth-brand-panel">
+          <div className="brand-panel-header">
+            <div className="brand-panel-logo">
+              <img src={typo_logo} alt="Typo AI logo" />
             </div>
-
-            <input
-              id="email"
-              name="email"
-              type="email"
-              placeholder="you@example.com"
-              value={formData.email}
-              onChange={handleChange}
-              autoComplete="email"
-              required
-            />
+            <span className="brand-panel-badge">Developer Workspace</span>
           </div>
 
-          <div className="login-field">
-            <div className="login-label-row">
-              <label htmlFor="password">Password</label>
-              <button
-                className="forgot-password"
-                type="button"
-                disabled
-                title="Password recovery is not implemented yet"
-              >
-                Forgot password?
-              </button>
-            </div>
+          <div className="brand-panel-body">
+            <h2>Build software faster with intelligent AI pairing.</h2>
+            <p>
+              Debug code, review architectures, and explore technical solutions in
+              a focused workspace designed for developers.
+            </p>
 
-            <div className="password-input-wrapper">
+            <ul className="brand-features">
+              <li>
+                <CheckCircle2 size={16} />
+                <span>Context-aware coding conversations</span>
+              </li>
+              <li>
+                <CheckCircle2 size={16} />
+                <span>Syntax highlighted multi-language answers</span>
+              </li>
+              <li>
+                <CheckCircle2 size={16} />
+                <span>Instant prompts for debugging & refactoring</span>
+              </li>
+            </ul>
+          </div>
+
+          <div className="brand-panel-footer">
+            <Sparkles size={16} />
+            <span>Built for engineering speed and precision.</span>
+          </div>
+        </section>
+
+        {/* Right Side: Form Card */}
+        <section className="auth-form-card">
+          <header className="auth-header">
+            <h1>Welcome back</h1>
+            <p>Sign in to your Typo AI workspace</p>
+          </header>
+
+          <div className="auth-social-buttons">
+            <button
+              type="button"
+              className="social-auth-btn"
+              onClick={() => handleOAuthLogin("github")}
+            >
+              <FaGithub className="social-icon" aria-hidden="true" />
+              <span>GitHub</span>
+            </button>
+
+            <button
+              type="button"
+              className="social-auth-btn"
+              onClick={() => handleOAuthLogin("google")}
+            >
+              <FcGoogle className="social-icon" aria-hidden="true" />
+              <span>Google</span>
+            </button>
+          </div>
+
+          <div className="auth-divider">
+            <span className="divider-line"></span>
+            <span className="divider-text">OR CONTINUE WITH EMAIL</span>
+            <span className="divider-line"></span>
+          </div>
+
+          <form className="auth-form" onSubmit={handleSubmit}>
+            <div className="form-field">
+              <div className="field-label-row">
+                <label htmlFor="email">Work Email</label>
+              </div>
               <input
-                id="password"
-                name="password"
-                type={showPassword ? "text" : "password"}
-                placeholder="Enter your password"
-                value={formData.password}
+                id="email"
+                name="email"
+                type="email"
+                placeholder="you@company.com"
+                value={formData.email}
                 onChange={handleChange}
-                autoComplete="current-password"
+                autoComplete="email"
                 required
               />
-
-              <button
-                className="password-visibility"
-                type="button"
-                onClick={() => setShowPassword((prev) => !prev)}
-                aria-label={showPassword ? "Hide password" : "Show password"}
-              >
-                {showPassword ? "hide" : "visibility"}
-              </button>
             </div>
-          </div>
 
-          {displayedInfo && (
-            <p className="login-message" role="status">
-              {displayedInfo}
-            </p>
-          )}
+            <div className="form-field">
+              <div className="field-label-row">
+                <label htmlFor="password">Password</label>
+                <button
+                  className="forgot-password-link"
+                  type="button"
+                  disabled
+                  title="Password recovery is not implemented yet"
+                >
+                  Forgot password?
+                </button>
+              </div>
 
-          {displayedError && (
-            <p className="login-message login-error" role="alert">
-              {displayedError}
-            </p>
-          )}
+              <div className="password-wrapper">
+                <input
+                  id="password"
+                  name="password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Enter your password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  autoComplete="current-password"
+                  required
+                />
+                <button
+                  className="password-toggle-btn"
+                  type="button"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
+            </div>
 
-          <button className="login-submit" type="submit" disabled={loading}>
-            <span>{loading ? "Signing in..." : "Sign in"}</span>
-
-            {!loading && (
-              <span className="login-enter-key">
-                ↵ <kbd>Enter</kbd>
-              </span>
+            {displayedInfo && (
+              <div className="auth-message auth-info" role="status">
+                {displayedInfo}
+              </div>
             )}
-          </button>
-        </form>
 
-        <footer className="login-footer">
-          <span>New to TYPO?</span>
-          <Link to="/register">Create an account</Link>
-        </footer>
-      </section>
+            {displayedError && (
+              <div className="auth-message auth-error" role="alert">
+                {displayedError}
+              </div>
+            )}
+
+            <button className="auth-submit-btn" type="submit" disabled={loading}>
+              <span>{loading ? "Signing in..." : "Sign in"}</span>
+              {!loading && <kbd className="enter-kbd">↵ Enter</kbd>}
+            </button>
+          </form>
+
+          <footer className="auth-footer">
+            <span>New to Typo?</span>
+            <Link to="/register">Create an account</Link>
+          </footer>
+        </section>
+      </div>
     </main>
   );
 }
-
-export default LoginPage;

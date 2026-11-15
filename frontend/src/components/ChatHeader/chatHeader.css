@@ -1,62 +1,83 @@
 .chat-header {
-  height: 58px;
-
+  height: var(--header-height);
+  min-height: var(--header-height);
   display: flex;
   align-items: center;
-  justify-content: flex-end;
-
-  padding: 0 24px;
-
-  border-bottom: 1px solid #2a2a2a;
-
-  background-color: #0d0d0d;
-
+  justify-content: space-between;
+  padding: 0 20px;
+  background-color: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
   box-sizing: border-box;
+  z-index: 10;
 }
 
-
-/* Header Actions */
-
-.chat-header-actions {
+.header-left {
   display: flex;
   align-items: center;
+  min-width: 0;
   gap: 4px;
 }
 
+.breadcrumb {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+}
 
-/* Action Button */
+.conversation-title {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 320px;
+}
 
-.header-action {
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.header-action-btn {
   display: flex;
   align-items: center;
   gap: 6px;
-
-  padding: 7px 9px;
-
-  border: none;
-  border-radius: 6px;
-
-  background-color: transparent;
-  color: #a3a3a3;
-
-  font-size: 11px;
-
-  cursor: pointer;
-
-  transition:
-    background-color 0.15s ease,
-    color 0.15s ease;
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background-color: var(--color-surface);
+  color: var(--color-text-secondary);
+  font-size: 12.5px;
+  font-weight: 500;
+  transition: all 0.15s ease;
 }
 
-
-.header-action:hover {
-  background-color: #202020;
-  color: #ffffff;
+.header-action-btn:hover {
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  border-color: #D4D4D8;
 }
 
+.header-action-btn.logout {
+  padding: 6px 8px;
+  color: var(--color-text-secondary);
+}
 
-/* Logout */
+.header-action-btn.logout:hover {
+  background-color: #FEE2E2;
+  color: var(--color-error);
+  border-color: #FECACA;
+}
 
-.header-action.logout {
-  padding: 8px;
+@media (max-width: 768px) {
+  .chat-header {
+    padding: 0 14px;
+  }
+  .conversation-title {
+    max-width: 160px;
+  }
 }

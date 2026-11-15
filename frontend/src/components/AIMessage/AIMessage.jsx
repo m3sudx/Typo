@@ -2,7 +2,7 @@ import { useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
+import { oneLight } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { Copy, Check } from "lucide-react";
 
 import "./aiMessage.css";
@@ -16,7 +16,6 @@ export default function AIMessage({ message }) {
           components={{
             code({ className, children, ...props }) {
               const match = /language-(\w+)/.exec(className || "");
-
               const code = String(children).replace(/\n$/, "");
 
               // Inline code
@@ -51,9 +50,7 @@ function CodeBlock({ language, code }) {
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(code);
-
       setCopied(true);
-
       setTimeout(() => {
         setCopied(false);
       }, 2000);
@@ -72,16 +69,18 @@ function CodeBlock({ language, code }) {
         <button
           className="copy-button"
           onClick={handleCopy}
+          type="button"
+          title="Copy code to clipboard"
         >
           {copied ? (
             <>
-              <Check size={14} />
-              Copied
+              <Check size={13} />
+              <span>Copied</span>
             </>
           ) : (
             <>
-              <Copy size={14} />
-              Copy
+              <Copy size={13} />
+              <span>Copy</span>
             </>
           )}
         </button>
@@ -89,14 +88,15 @@ function CodeBlock({ language, code }) {
 
       <SyntaxHighlighter
         language={language}
-        style={oneDark}
+        style={oneLight}
         PreTag="div"
         customStyle={{
           margin: 0,
-          padding: "18px",
-          background: "#111111",
-          fontSize: "14px",
+          padding: "16px 18px",
+          background: "#F8F9FC",
+          fontSize: "13.5px",
           lineHeight: "1.65",
+          fontFamily: "var(--font-mono)",
         }}
       >
         {code}
