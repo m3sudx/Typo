@@ -10,7 +10,7 @@ import {
   LogOut,
 } from "lucide-react";
 
-import typo_logo from "../../assets/image/typo-logo.png";
+import typo_logo from "../../assets/logo.svg";
 import { getConversations } from "../../api/conversation.api.js";
 import "./sidebar.css";
 
