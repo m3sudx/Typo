@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Share2, Trash2, LogOut, Check } from "lucide-react";
+import ThemeToggle from "../ThemeToggle/ThemeToggle";
 
 import "./chatHeader.css";
 
@@ -32,6 +33,8 @@ export default function ChatHeader({ title, onClear }) {
       </div>
 
       <div className="header-actions">
+        <ThemeToggle />
+
         <button
           className="header-action-btn"
           onClick={handleShare}
